@@ -1,7 +1,13 @@
 from jobplus.app import create_app
+from jobplus.config import DeployType
+
+app = create_app(DeployType.Development)
 
 
+@app.route('/')
+def index():
+    return "Yoo"
 
-app = create_app('development')
+
 if __name__ == '__main__':
     app.run()

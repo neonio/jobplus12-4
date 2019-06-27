@@ -5,7 +5,7 @@
 
 ### 初始化项目
 ---
-[] 初始化项目
+[x] 初始化项目
 
 [] 创建模型
     
@@ -50,3 +50,8 @@
 [] 部署
 
 [] 测试代码
+
+---
+Inspections
+PEP 8 coding style violation
+[Ignore] N802、N803、N806
