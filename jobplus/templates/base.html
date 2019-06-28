@@ -1,10 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Base</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+        {% block title %}
+        {% endblock %}
+    </title>
+    {% block includeCss %}
+        <link rel="stylesheet" href="https://cdn.bootcss.com/bulma/0.7.5/css/bulma.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    {% endblock %}
 </head>
 <body>
-
+    <nav></nav>
+    <section class="section">
+    <div class="container">
+      <h1 class="title">
+        Ready To Go
+      </h1>
+      <p class="subtitle">
+        Flask App 101
+      </p>
+    </div>
+    </section>
 </body>
 </html>

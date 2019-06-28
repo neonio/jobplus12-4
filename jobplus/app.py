@@ -1,6 +1,10 @@
-from flask import Flask
+from flask import Flask, render_template
+from flask_migrate import Migrate
+from flask_login import LoginManager
 from jobplus.config import DeployType, preConfig
 from jobplus.models import db
+from jobplus.handlers import blueprints
+
 
 
 def create_app(deployType: DeployType) -> Flask:
@@ -20,11 +24,26 @@ def registerExtensions(app: Flask):
     with app.app_context():
         db.drop_all()
         db.create_all()
+    loginManager = LoginManager()
+    loginManager.init_app(app)
+
+
+    # Migrate(app)
+
 
 
 def registerBluePrints(app: Flask):
-    pass
+    for bp in blueprints:
+        app.register_blueprint(bp)
 
 
 def registerErrorHandlers(app: Flask):
-    pass
+
+    @app.errorhandler(404)
+    def NotFoundAction(error):
+        return render_template('error/404.html'), 404
+
+    @app.errorhandler(500)
+    def ServerErrorAction(error):
+        return render_template('error/500.html'), 500
+
