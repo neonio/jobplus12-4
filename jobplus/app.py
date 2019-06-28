@@ -1,5 +1,6 @@
 from flask import Flask
 from jobplus.config import DeployType, preConfig
+from jobplus.models import db
 
 
 def create_app(deployType: DeployType) -> Flask:
@@ -15,7 +16,10 @@ def create_app(deployType: DeployType) -> Flask:
 
 
 def registerExtensions(app: Flask):
-    pass
+    db.init_app(app)
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
 
 
 def registerBluePrints(app: Flask):
