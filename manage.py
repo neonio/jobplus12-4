@@ -6,7 +6,7 @@ app = create_app(DeployType.Development)
 
 @app.route('/')
 def index():
-    return render_template('base.html')
+    return render_template('index.html')
 
 
 if __name__ == '__main__':

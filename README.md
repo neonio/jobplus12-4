@@ -49,9 +49,13 @@
 
 ### 部署和测试
 
-[] 部署
+    - [] 部署
 
-[] 测试代码
+    - [] 测试代码
+
+### Road Map
+
+    - [] Replace bootstrap with bulma and vuejs
 
 ---
 Inspections
