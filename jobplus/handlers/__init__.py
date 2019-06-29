@@ -6,3 +6,6 @@ from .job import job
 from .user import user
 
 blueprints: [Blueprint] = [front, admin, company, job, user]
+
+
+

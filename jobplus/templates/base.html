@@ -87,14 +87,14 @@
     {% block body %}{% endblock %}
 
     {% block footer %}
-        <div class="footer">Copyright © 2017 By 实验楼</div>
+
     {% endblock %}
 
 </div>
 {% block tail_js %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="static/main.js"></script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
 {% endblock %}
 </body>
 </html>

@@ -7,3 +7,4 @@ Flask-WTF==0.14.2
 gunicorn==19.9.0
 PyMySQL==0.9.3
 Werkzeug==0.15.4
+WTForms==2.2.1

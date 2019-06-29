@@ -8,7 +8,7 @@ from jobplus.handlers import blueprints
 
 
 def create_app(deployType: DeployType) -> Flask:
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='./static')
     app.config.from_pyfile(deployType.configPath())
     app.config.update(preConfig)
 

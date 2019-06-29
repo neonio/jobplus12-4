@@ -1,10 +1,14 @@
 from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, BaseQuery
 from flask_login import UserMixin, current_user
 from enum import Enum, unique
 from werkzeug.security import generate_password_hash, check_password_hash
+from typing import List, Optional
 
 db = SQLAlchemy()
+
+
+
 
 
 class Base(db.Model):
@@ -45,6 +49,25 @@ class User(Base, UserMixin):
     resume_url = db.Column(db.String(64))
     detail = db.relationship('CompanyDetail', uselist=False)
     is_disable = db.Column(db.Boolean, default=False)
+
+    @classmethod
+    def list(cls, **kwargs) -> List['User']:
+        return cls.query.filter_by(**kwargs)
+
+    @classmethod
+    def first(cls, **kwargs) -> Optional['User']:
+        return cls.query.filter_by(**kwargs).first()
+
+    @classmethod
+    def createFrom(cls, name: str, email: str, password: str, **kwargs):
+        user = cls()
+
+        user.name = name
+        user.email = email
+        user.password = password
+        for k, v in kwargs:
+            setattr(user, k, v)
+        return user
 
     def __repr__(self):
         return '<User:{}>'.format(self.name)
