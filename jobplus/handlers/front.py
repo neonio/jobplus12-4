@@ -1,16 +1,17 @@
 from flask import Blueprint, render_template, redirect, url_for, flash
 from jobplus.forms import LoginForm, RegisterForm
-from jobplus.models import User
-from flask_sqlalchemy import BaseQuery
+from jobplus.models import User, Company, Job
 from flask_login import login_user, logout_user
-from enum import unique, Enum
 
-front: Blueprint = Blueprint('front', __name__, url_prefix='/front')
+
+front: Blueprint = Blueprint('front', __name__)
 
 
 @front.route('/')
 def index():
-    return render_template('index.html')
+    jobs = Job.query.order_by(Job.update_at.desc()).limit(8).all()
+    companys = Company.query.order_by(Company.update_at.desc()).limit(8).all()
+    return render_template('index.html', companys=companys, jobs=jobs)
 
 
 @front.route('/userregister/', methods=['GET', 'POST'])

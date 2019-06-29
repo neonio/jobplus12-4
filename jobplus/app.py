@@ -6,8 +6,6 @@ from jobplus.models import db, User
 from jobplus.handlers import blueprints
 
 
-
-
 def create_app(deployType: DeployType) -> Flask:
     app = Flask(__name__, static_folder='./static')
     app.config.from_pyfile(deployType.configPath())
@@ -20,7 +18,7 @@ def create_app(deployType: DeployType) -> Flask:
     return app
 
 
-def registerExtensions(app: Flask):
+def registerExtensions(app):
     db.init_app(app)
     Migrate(app, db)
     # with app.app_context():
@@ -33,8 +31,7 @@ def registerExtensions(app: Flask):
     def load_user(user_id):
         return User.first(id=user_id)
 
-
-
+    loginManager.login_view = 'front.login'
 
 
 def registerBluePrints(app: Flask):
@@ -43,7 +40,6 @@ def registerBluePrints(app: Flask):
 
 
 def registerErrorHandlers(app: Flask):
-
     @app.errorhandler(404)
     def NotFoundAction(error):
         return render_template('error/404.html'), 404
@@ -51,4 +47,3 @@ def registerErrorHandlers(app: Flask):
     @app.errorhandler(500)
     def ServerErrorAction(error):
         return render_template('error/500.html'), 500
-

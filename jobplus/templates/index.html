@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% from "macros.html" import render_company, render_job %}
 {% block title %}
     Home
 {% endblock %}
@@ -19,7 +19,7 @@
     </ul>
 
     <div class="job-list">
-        {% for job in newest_jobs %}
+        {% for job in jobs %}
             {{ render_job(job) }}
         {% endfor %}
     </div>
@@ -33,7 +33,7 @@
     </ul>
 
     <div class="company-list">
-        {% for company in newest_companies %}
+        {% for company in companys %}
             {{ render_company(company) }}
         {% endfor %}
     </div>
