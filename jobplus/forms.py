@@ -6,7 +6,6 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, Integ
 from flask_wtf.file import FileField, FileRequired
 from wtforms.validators import Email, EqualTo, DataRequired, Length, NumberRange
 from jobplus.models import User, db
-from typing import List
 
 
 class LoginForm(FlaskForm):
@@ -61,7 +60,7 @@ class UserProfileForm(FlaskForm):
 
     def validate_phone(self, field):
         phone = field.data
-        if phone[:1] == '1':
+        if phone[:1] != '1':
             raise ValidationError('请输入有效的手机号')
 
     def upload_resume(self):
@@ -73,6 +72,7 @@ class UserProfileForm(FlaskForm):
             'resumes',
             filename
         ))
+        f.close()
         return filename
 
     def update_profile(self, user):

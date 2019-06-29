@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash
 from jobplus.forms import LoginForm, RegisterForm
 from jobplus.models import User
 from flask_sqlalchemy import BaseQuery
-from flask_login import login_user
+from flask_login import login_user, logout_user
 from enum import unique, Enum
 
 front: Blueprint = Blueprint('front', __name__, url_prefix='/front')
@@ -45,4 +45,5 @@ def login():
 
 @front.route('/logout/')
 def logout():
-    return "logout"
+    logout_user()
+    return redirect(url_for('index'))

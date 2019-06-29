@@ -2,8 +2,9 @@ from flask import Flask, render_template
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from jobplus.config import DeployType, preConfig
-from jobplus.models import db
+from jobplus.models import db, User
 from jobplus.handlers import blueprints
+
 
 
 
@@ -21,12 +22,15 @@ def create_app(deployType: DeployType) -> Flask:
 
 def registerExtensions(app: Flask):
     db.init_app(app)
-    with app.app_context():
-        db.drop_all()
-        db.create_all()
+    # with app.app_context():
+    #     db.drop_all()
+    #     db.create_all()
     loginManager = LoginManager()
     loginManager.init_app(app)
 
+    @loginManager.user_loader
+    def load_user(user_id):
+        return User.first(id=user_id)
 
     # Migrate(app)
 
