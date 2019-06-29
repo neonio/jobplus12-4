@@ -1,11 +1,92 @@
-from flask import Blueprint, render_template
-
+from flask import Blueprint, render_template, flash, url_for, redirect, abort, request, current_app
+from flask_login import login_required, current_user
+from flask_sqlalchemy import Pagination
+from jobplus.forms import CompanyProfileForm
+from jobplus.models import User, Job, UserRole, Company
+from jobplus.utils import getCurrentUser
 
 company: Blueprint = Blueprint('company', __name__, url_prefix='/company')
+
+
 @company.route('/')
 def index():
-    return "company"
+    page = request.args.get('page', 1, type=int)
+    query = Company.query.filter(Company.role == UserRole.COMPANY.value)
+    keyword = request.args.get('keyword') or request.form.get('keyword')
+    if isinstance(keyword, str):
+        keyword = keyword.strip()
+    if keyword:
+        query = query.filter(Company.role == UserRole.COMPANY.value and Company.name.contains(keyword))
 
-@company.route('/admin_index/')
-def admin_index():
-    return "admin_index"
+    pagination = query.order_by(Company.update_at.desc()).paginate(
+        page=page,
+        per_page=12,
+        error_out=False
+    )
+    return render_template('company/index.html', pagination=pagination, active='company')
+
+
+@company.route('/<int:companyID>/admin')
+@login_required
+def admin_index(companyID: int):
+    companyObject: User = getCurrentUser()
+    if not companyObject.is_admin and not companyObject.id == companyID:
+        abort(404)
+    page = request.args.get('page', default=1, type=int)
+    pagination: Pagination = Job.query.filter_by(companyID=companyID).paginate(
+        page=page,
+        per_page=current_app.config['ADMIN_PER_PAGE'],
+        error_out=False
+    )
+    return render_template('company/admin_index.html', companyID=companyID, pagination=pagination)
+
+@company.route('/<int:companyID>/admin/apply')
+@login_required
+def admin_apply(companyID):
+    return "apply"
+
+@company.route('/<int:companyID>/admin/publish_job/', methods=['GET', 'POST'])
+@login_required
+def admin_publish_job(companyID):
+    return "publish"
+
+@company.route('/<int:companyID>/admin/jobs/<int:jobID>/delete')
+@login_required
+def admin_delete_job(companyID, jobID):
+    return "delete"
+
+@company.route('/<int:companyID>/admin/edit_job/<int:jobID>/', methods=['GET', 'POST'])
+@login_required
+def admin_edit_job(companyID, jobID):
+    return "edit"
+
+@company.route('/profile/', methods=['GET', 'POST'])
+@login_required
+def profile():
+    companyObject = getCurrentUser()
+    if not companyObject.is_company:
+        flash('你不是企业用户', 'warning')
+        return redirect(url_for('front.index'))
+
+    form: CompanyProfileForm = CompanyProfileForm(obj=companyObject.detail)
+    form.name.data = companyObject.name
+    form.email.data = companyObject.email
+    form.phone.data = companyObject.phone
+    if form.validate_on_submit():
+        form.updated_profile(companyObject)
+        flash('企业信息更新成功', 'success')
+        return redirect(url_for('front.index'))
+    return render_template('company/profile.html', form=form)
+
+
+@company.route('/<int:companyID>')
+def detail(companyID):
+    companyUser: Company = Company.query.get_or_404(companyID)
+    return render_template('company/detail.html', company=companyUser, active='', panel='about')
+
+@company.route('/<int:companyID>/jobs')
+def company_jobs(companyID):
+    company = Company.query.get_or_404(companyID)
+    if not company.is_company:
+        abort(404)
+    return render_template('company/detail.html', company=company, active='', panel='job')

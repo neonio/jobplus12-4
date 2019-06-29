@@ -10,7 +10,7 @@ front: Blueprint = Blueprint('front', __name__, url_prefix='/front')
 
 @front.route('/')
 def index():
-    return "front"
+    return render_template('index.html')
 
 
 @front.route('/userregister/', methods=['GET', 'POST'])

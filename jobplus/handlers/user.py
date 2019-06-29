@@ -3,9 +3,12 @@ from flask_login import login_required, current_user
 from jobplus.forms import UserProfileForm
 
 user: Blueprint = Blueprint('user', __name__, url_prefix='/user')
+
+
 @user.route('/')
 def index():
     redirect(url_for('user.profile'))
+
 
 @user.route('/profile/', methods=['GET', 'POST'])
 def profile():

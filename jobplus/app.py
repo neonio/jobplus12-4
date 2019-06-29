@@ -22,6 +22,7 @@ def create_app(deployType: DeployType) -> Flask:
 
 def registerExtensions(app: Flask):
     db.init_app(app)
+    Migrate(app, db)
     # with app.app_context():
     #     db.drop_all()
     #     db.create_all()
@@ -32,7 +33,7 @@ def registerExtensions(app: Flask):
     def load_user(user_id):
         return User.first(id=user_id)
 
-    # Migrate(app)
+
 
 
 

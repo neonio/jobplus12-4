@@ -2,10 +2,11 @@ import os
 
 from flask import url_for
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, Field, ValidationError
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, Field, ValidationError, \
+    TextAreaField
 from flask_wtf.file import FileField, FileRequired
 from wtforms.validators import Email, EqualTo, DataRequired, Length, NumberRange
-from jobplus.models import User, db
+from jobplus.models import User, db, CompanyDetail, Company
 
 
 class LoginForm(FlaskForm):
@@ -75,7 +76,7 @@ class UserProfileForm(FlaskForm):
         f.close()
         return filename
 
-    def update_profile(self, user):
+    def update_profile(self, user: User):
         user.real_name = self.real_name.data
         user.email = self.email.data
         if self.password.data:
@@ -85,4 +86,40 @@ class UserProfileForm(FlaskForm):
         filename = self.upload_resume()
         user.resume_url = url_for('static', filename=os.path.join('resumes', filename))
         db.session.add(user)
+        db.session.commit()
+
+
+class CompanyProfileForm(FlaskForm):
+    name = StringField('企业名称')
+    email = StringField('邮箱', validators=[DataRequired(), Email()])
+    phone = StringField('手机号', validators=[Length(11)])
+    password = PasswordField('密码(不填写保持不变)')
+    slogan = StringField('Slogan', validators=[DataRequired(), Length(3, 24)])
+    location = StringField('地址', validators=[Length(0, 64)])
+    site = StringField('公司网站', validators=[Length(0, 64)])
+    logo = StringField('Logo')
+    description = StringField('一句话描述', validators=[Length(0, 100)])
+    about = TextAreaField('公司详情', validators=[Length(0, 1024)])
+    submit = SubmitField('提交')
+
+    def validate_phone(self, field):
+        phone = field.data
+        if phone[:1] != '1':
+            raise ValidationError('请输入有效的手机号')
+
+    def updated_profile(self, company: Company):
+        company.name = self.name.data
+        company.email = self.email.data
+        company.phone = self.phone.data
+        if self.password.data:
+            company.password = self.password.data
+
+        if company.detail:
+            detail = company.detail
+        else:
+            detail = CompanyDetail()
+            detail.user_id = company.id
+        self.populate_obj(detail)
+        db.session.add(company)
+        db.session.add(detail)
         db.session.commit()

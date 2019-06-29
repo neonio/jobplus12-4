@@ -3,12 +3,9 @@ from flask_sqlalchemy import SQLAlchemy, BaseQuery
 from flask_login import UserMixin, current_user
 from enum import Enum, unique
 from werkzeug.security import generate_password_hash, check_password_hash
-from typing import List, Optional
+from typing import List, Optional, NewType
 
 db = SQLAlchemy()
-
-
-
 
 
 class Base(db.Model):
@@ -102,6 +99,9 @@ class User(Base, UserMixin):
         return self.role == UserRole.USER.value
 
 
+Company = User
+
+
 class Resume(Base):
     __tablename__ = 'resume'
 
@@ -155,14 +155,15 @@ class CompanyDetail(Base):
     __tablename__ = 'company_detail'
 
     id = db.Column(db.Integer, primary_key=True)
-    logo = db.Column(db.String(256), nullable=False)
+    logo = db.Column(db.String(256), default='https://via.placeholder.com/300/000000/FFFFFF/?text=Building',
+                     nullable=False)
     site = db.Column(db.String(128), nullable=False)
     location = db.Column(db.String(24), nullable=False)
     description = db.Column(db.String(100))
-    about = db.Column(db.String(1024))
+    about = db.Column(db.TEXT)
     tags = db.Column(db.String(128))
     stack = db.Column(db.String(128))
-    team_introduction = db.Column(db.String(256))
+    slogan = db.Column(db.String(256))
     welfares = db.Column(db.String(256))
     field = db.Column(db.String(128))
     finance_stage = db.Column(db.String(128))
@@ -187,7 +188,7 @@ class Job(Base):
     degree_requirement = db.Column(db.String(32))
     is_fulltime = db.Column(db.Boolean, default=True)
     is_open = db.Column(db.Boolean, default=True)
-    company_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+    companyID = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
     company = db.relationship('User', uselist=False, backref=db.backref('jobs', lazy='dynamic'))
     views_count = db.Column(db.Integer, default=0)
     is_disable = db.Column(db.Boolean, default=False)
@@ -201,7 +202,7 @@ class Job(Base):
 
     @property
     def current_user_is_applied(self) -> bool:
-        d = Delivery.query.filter_by(job_id=self.id, user_id=current_user.id).first()
+        d = Delivery.query.filter_by(jobID=self.id, userID=current_user.id).first()
         return d is not None
 
 
@@ -216,16 +217,16 @@ class Delivery(Base):
     __tablename__ = 'delivery'
 
     id = db.Column(db.Integer, primary_key=True)
-    job_id = db.Column(db.Integer, db.ForeignKey('job.id', ondelete='SET NULL'))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
-    company_id = db.Column(db.Integer)
+    jobID = db.Column(db.Integer, db.ForeignKey('job.id', ondelete='SET NULL'))
+    userID = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
+    companyID = db.Column(db.Integer)
     status = db.Column(db.SmallInteger, default=DeliveryStatus.WAITING.value)
     response = db.Column(db.String(256))
 
     @property
     def user(self):
-        return User.query.get(self.user_id)
+        return User.query.get(self.userID)
 
     @property
     def job(self):
-        return Job.query.get(self.job_id)
+        return Job.query.get(self.jobID)
