@@ -82,12 +82,12 @@
             <hr>
             <div class="media">
                 <div class="media-left">
-                    <a href="{{ url_for('company.detail', company_id=job.company.id) }}">
+                    <a href="{{ url_for('company.detail', companyID=job.company.id) }}">
                         <img class="media-object" src="{{ job.company.detail.logo }}" width="40" height="40" alt="...">
                     </a>
                 </div>
                 <div class="media-body">
-                    <a href="{{ url_for('company.detail', company_id=job.company.id) }}">
+                    <a href="{{ url_for('company.detail', companyID=job.company.id) }}">
                         <h4 class="media-heading">{{ job.company.name }}</h4>
                     </a>
                     <span class="company-meta">{{ job.company.detail.field }}/{{ job.company.detail.finance_stage }}/{{ job.company.detail.location }}</span>
