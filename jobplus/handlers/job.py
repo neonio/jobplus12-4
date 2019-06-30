@@ -19,25 +19,25 @@ def index():
 
 @job.route('/<int:job_id>')
 def detail(job_id):
-    job = Job.query.get_or_404(job_id)
-    return render_template('job/detail.html', job=job, active='')
+    jobObject = Job.query.get_or_404(job_id)
+    return render_template('job/detail.html', job=jobObject, active='')
 
 
 @job.route('/<int:job_id>/apply')
 @login_required
 def apply(job_id):
-    job = Job.query.get_or_404(job_id)
+    jobObject = Job.query.get_or_404(job_id)
     if current_user.resume_url is None:
         flash('请上传简历后再投递', 'warning')
-    elif job.current_user_is_applied:
+    elif jobObject.current_user_is_applied:
         flash('已经投递过该职位', 'warning')
     else:
         d = Delivery(
-            job_id=job.id,
-            user_id=current_user.id,
-            company_id=job.company.id
+            jobID=jobObject.id,
+            userID=current_user.id,
+            companyID=jobObject.company.id
         )
         db.session.add(d)
         db.session.commit()
         flash('投递成功', 'success')
-    return redirect(url_for('job.detail', job_id=job.id))
+    return redirect(url_for('job.detail', job_id=jobObject.id))

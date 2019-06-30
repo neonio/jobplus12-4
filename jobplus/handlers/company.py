@@ -40,25 +40,30 @@ def admin_index(companyID: int):
     )
     return render_template('company/admin_index.html', companyID=companyID, pagination=pagination)
 
+
 @company.route('/<int:companyID>/admin/apply')
 @login_required
 def admin_apply(companyID):
     return "apply"
+
 
 @company.route('/<int:companyID>/admin/publish_job/', methods=['GET', 'POST'])
 @login_required
 def admin_publish_job(companyID):
     return "publish"
 
+
 @company.route('/<int:companyID>/admin/jobs/<int:jobID>/delete')
 @login_required
 def admin_delete_job(companyID, jobID):
     return "delete"
 
+
 @company.route('/<int:companyID>/admin/edit_job/<int:jobID>/', methods=['GET', 'POST'])
 @login_required
 def admin_edit_job(companyID, jobID):
     return "edit"
+
 
 @company.route('/profile/', methods=['GET', 'POST'])
 @login_required
@@ -84,9 +89,10 @@ def detail(companyID):
     companyUser: Company = Company.query.get_or_404(companyID)
     return render_template('company/detail.html', company=companyUser, active='', panel='about')
 
+
 @company.route('/<int:companyID>/jobs')
 def company_jobs(companyID):
-    company = Company.query.get_or_404(companyID)
-    if not company.is_company:
+    companyUser = Company.query.get_or_404(companyID)
+    if not companyUser.is_company:
         abort(404)
-    return render_template('company/detail.html', company=company, active='', panel='job')
+    return render_template('company/detail.html', company=companyUser, active='', panel='job')
