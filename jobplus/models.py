@@ -1,9 +1,11 @@
 from datetime import datetime
+
+from flask import flash, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy, BaseQuery
 from flask_login import UserMixin, current_user
 from enum import Enum, unique
 from werkzeug.security import generate_password_hash, check_password_hash
-from typing import List, Optional, NewType
+from typing import List, Optional, NewType, Union, Any
 
 db = SQLAlchemy()
 
@@ -56,12 +58,13 @@ class User(Base, UserMixin):
         return cls.query.filter_by(**kwargs).first()
 
     @classmethod
-    def createFrom(cls, name: str, email: str, password: str, **kwargs):
+    def createFrom(cls, name: str, email: str, password: str, role: UserRole, **kwargs):
         user = cls()
 
         user.name = name
         user.email = email
         user.password = password
+        user.role = role.value
         for k, v in kwargs:
             setattr(user, k, v)
         return user
@@ -71,8 +74,6 @@ class User(Base, UserMixin):
 
     @property
     def enable_jobs(self):
-        if not self.is_company:
-            raise AttributeError('User has no attribute enable_jobs')
         return self.jobs.filter(Job.is_disable.is_(False))
 
     @property

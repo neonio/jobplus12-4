@@ -6,7 +6,7 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, Integ
     TextAreaField
 from flask_wtf.file import FileField, FileRequired
 from wtforms.validators import Email, EqualTo, DataRequired, Length, NumberRange
-from jobplus.models import User, db, CompanyDetail, Company
+from jobplus.models import User, db, CompanyDetail, Company, UserRole
 
 
 class LoginForm(FlaskForm):
@@ -41,10 +41,11 @@ class RegisterForm(FlaskForm):
         if User.first(email=field.data):
             raise ValidationError('邮箱已经存在')
 
-    def createUser(self):
+    def createUser(self, role: UserRole):
         user = User.createFrom(name=self.name.data,
                                email=self.email.data,
-                               password=self.password.data)
+                               password=self.password.data,
+                               role=role)
         db.session.add(user)
         db.session.commit()
         return user
