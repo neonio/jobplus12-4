@@ -51,12 +51,12 @@ class RegisterForm(FlaskForm):
 
 
 class UserProfileForm(FlaskForm):
-    real_name = StringField('姓名', [DataRequired(), Length(3, 24)])
+    real_name = StringField('姓名', validators=[DataRequired(), Length(3, 24)])
     email = StringField('邮箱', validators=[DataRequired(), Email()])
-    password = PasswordField('密码(不填写保持不变)')
+    password = PasswordField('密码(不填写保持不变)', validators=[DataRequired(), Length(6, 24)])
     phone = StringField('手机号', validators=[Length(11)])
     work_years = IntegerField('工作年限', validators=[NumberRange(min=0)])
-    resume = FileField('上传简历', validators=[FileRequired()])
+    resume = FileField('上传简历')
     submit = SubmitField('提交')
 
     def validate_phone(self, field):
@@ -90,10 +90,10 @@ class UserProfileForm(FlaskForm):
 
 
 class CompanyProfileForm(FlaskForm):
-    name = StringField('企业名称')
+    name = StringField('企业名称', validators=[DataRequired()])
     email = StringField('邮箱', validators=[DataRequired(), Email()])
     phone = StringField('手机号', validators=[Length(11)])
-    password = PasswordField('密码(不填写保持不变)')
+    password = PasswordField('密码(不填写保持不变)', validators=[DataRequired(), Length(6, 24)])
     slogan = StringField('Slogan', validators=[DataRequired(), Length(3, 24)])
     location = StringField('地址', validators=[Length(0, 64)])
     site = StringField('公司网站', validators=[Length(0, 64)])
