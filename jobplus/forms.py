@@ -3,10 +3,10 @@ import os
 from flask import url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField, Field, ValidationError, \
-    TextAreaField
+    TextAreaField, SelectField
 from flask_wtf.file import FileField, FileRequired
 from wtforms.validators import Email, EqualTo, DataRequired, Length, NumberRange
-from jobplus.models import User, db, CompanyDetail, Company, UserRole
+from jobplus.models import User, db, CompanyDetail, Company, UserRole, Job
 
 
 class LoginForm(FlaskForm):
@@ -49,6 +49,52 @@ class RegisterForm(FlaskForm):
         db.session.add(user)
         db.session.commit()
         return user
+
+
+class JobForm(FlaskForm):
+    name = StringField('职位名称', validators=[DataRequired()])
+    salary_low = IntegerField('最低薪酬', validators=[NumberRange(min=0)])
+    salary_high = IntegerField('最高薪酬', validators=[NumberRange(max=1000000)])
+    location = StringField('工作地点')
+    tags = StringField('职位标签（多个用,隔开）')
+    experience_requirement = SelectField(
+        '经验要求(年)',
+        choices=[
+            ('不限', '不限'),
+            ('1', '1'),
+            ('2', '2'),
+            ('3', '3'),
+            ('1-3', '1-3'),
+            ('3-5', '3-5'),
+            ('5+', '5+')
+        ]
+    )
+    degree_requirement = SelectField(
+        '学历要求',
+        choices=[
+            ('不限', '不限'),
+            ('专科', '专科'),
+            ('本科', '本科'),
+            ('硕士', '硕士'),
+            ('博士', '博士')
+        ]
+    )
+    description = TextAreaField('职位描述', validators=[Length(0, 1500)])
+    submit = SubmitField('发布')
+
+    def create_job(self, company: Company):
+        job = Job()
+        self.populate_obj(job)
+        job.companyID = company.id
+        db.session.add(job)
+        db.session.commit()
+        return job
+
+    def update_job(self, job: Job):
+        self.populate_obj(job)
+        db.session.add(job)
+        db.session.commit()
+        return job
 
 
 class UserProfileForm(FlaskForm):

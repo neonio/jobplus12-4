@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, current_app, flash, redirect, url_for
+from flask import Blueprint, render_template, request, current_app, flash, redirect, url_for, abort
 from flask_login import login_required, current_user
 
 from jobplus.models import Job, Delivery, db
@@ -41,3 +41,41 @@ def apply(job_id):
         db.session.commit()
         flash('投递成功', 'success')
     return redirect(url_for('job.detail', job_id=jobObject.id))
+
+
+@job.route('/<int:job_id>/disable')
+@login_required
+def disable(job_id):
+    jobObject = Job.query.get_or_404(job_id)
+    if not current_user.is_admin and current_user.id != jobObject.company.id:
+        abort(404)
+    if jobObject.is_disable:
+        flash('职位已经下线', 'warning')
+    else:
+        jobObject.is_disable = True
+        db.session.add(jobObject)
+        db.session.commit()
+        flash('职位下线成功', 'success')
+    if current_user.is_admin:
+        return redirect(url_for('admin.jobs'))
+    else:
+        return redirect(url_for('company.admin_index', companyId=jobObject.company.id))
+
+
+@job.route('/<int:job_id>/enable')
+@login_required
+def enable(job_id):
+    jobObject = Job.query.get_or_404(job_id)
+    if not current_user.is_admin and current_user.id != jobObject.company.id:
+        abort(404)
+    if not jobObject.is_disable:
+        flash('职位已经上线', 'warning')
+    else:
+        jobObject.is_disable = False
+        db.session.add(jobObject)
+        db.session.commit()
+        flash('职位上线成功', 'success')
+    if current_user.is_admin:
+        return redirect(url_for('admin.jobs'))
+    else:
+        return redirect(url_for('company.admin_index', companyId=jobObject.company.id))

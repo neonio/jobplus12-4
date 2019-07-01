@@ -28,15 +28,15 @@
                 <td>{{ job.create_at }}</td>
                 <td>
                     <div class="btn-group" role="group">
-{#                        {% if not job.is_disable %}#}
-{#                            <a href="{{ url_for('job.disable', job_id=job.id) }}" type="button" class="btn btn-default">#}
-{#                                下线#}
-{#                            </a>#}
-{#                        {% else %}#}
-{#                            <a href="{{ url_for('job.enable', job_id=job.id) }}" type="button" class="btn btn-default">#}
-{#                                上线#}
-{#                            </a>#}
-{#                        {% endif %}#}
+                        {% if not job.is_disable %}
+                            <a href="{{ url_for('job.disable', job_id=job.id) }}" type="button" class="btn btn-default">
+                                下线
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('job.enable', job_id=job.id) }}" type="button" class="btn btn-default">
+                                上线
+                            </a>
+                        {% endif %}
                     </div>
                 </td>
             </tr>
