@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, flash, url_for, redirect, abort, r
 from flask_login import login_required, current_user
 from flask_sqlalchemy import Pagination
 from jobplus.forms import CompanyProfileForm, JobForm
-from jobplus.models import User, Job, UserRole, Company, db, Delivery
+from jobplus.models import User, Job, UserRole, Company, db, Delivery, DeliveryStatus
 from jobplus.utils import getCurrentUser
 
 company: Blueprint = Blueprint('company', __name__, url_prefix='/company')
@@ -47,11 +47,21 @@ def admin_apply(companyID):
     userObject = getCurrentUser()
     if not userObject.is_admin and not userObject.id == companyID:
         abort(404)
-    status = request.args.get('status','all')
+    status = request.args.get('status', 'all')
     page = request.args.get('page', default=1, type=int)
     jobDelivery = Delivery.query.filter_by(companyID=companyID)
     if status == 'waiting':
-        jobDelivery = jobDelivery.filter()
+        jobDelivery = jobDelivery.filter(Delivery.status == DeliveryStatus.WAITING.value)
+    elif status == 'accept':
+        jobDelivery = jobDelivery.filter(Delivery.status == DeliveryStatus.ACCEPT.value)
+    elif status == 'reject':
+        jobDelivery = jobDelivery.filter(Delivery.status == DeliveryStatus.REJECT.value)
+    pagination = jobDelivery.order_by(Delivery.create_at.desc()).paginate(
+        page=page,
+        per_page=current_app.config['ADMIN_PER_PAGE'],
+        error_out=False
+    )
+    return render_template('company/admin_apply.html', pagination=pagination, companyID=companyID)
 
 
 @company.route('/<int:companyID>/admin/publish_job/', methods=['GET', 'POST'])
@@ -128,3 +138,29 @@ def company_jobs(companyID):
     if not companyUser.is_company:
         abort(404)
     return render_template('company/detail.html', company=companyUser, active='', panel='job')
+
+
+@company.route('/<int:companyID>/admin/apply/<int:deliveryID>/reject/')
+@login_required
+def admin_apply_reject(companyID, deliveryID):
+    d = Delivery.query.get_or_404(deliveryID)
+    if current_user.id != companyID:
+        abort(404)
+    d.status = DeliveryStatus.REJECT.value
+    flash('已经拒绝该投递', 'success')
+    db.session.add(d)
+    db.session.commit()
+    return redirect(url_for('company.admin_apply', companyID=companyID))
+
+
+@company.route('/<int:companyID>/admin/apply/<int:deliveryID>/accept/')
+@login_required
+def admin_apply_accept(companyID, deliveryID):
+    d = Delivery.query.get_or_404(deliveryID)
+    if current_user.id != companyID:
+        abort(404)
+    d.status = DeliveryStatus.ACCEPT.value
+    flash('已经接受该投递, 可以安排面试了', 'success')
+    db.session.add(d)
+    db.session.commit()
+    return redirect(url_for('company.admin_apply', companyID=companyID))
