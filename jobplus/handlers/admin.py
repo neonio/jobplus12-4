@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, current_app, flash, redir
 from jobplus.decorators import admin_required
 
 from jobplus.forms import RegisterForm, CompanyProfileForm, UserProfileForm
-from jobplus.models import User, Job, db
+from jobplus.models import User, Job, db, UserRole
 
 admin: Blueprint = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -30,7 +30,7 @@ def users():
 def create_user():
     form = RegisterForm()
     if form.validate_on_submit():
-        form.createUser()
+        form.createUser(role=UserRole.USER.value)
         flash('求职者创建成功', 'success')
         return redirect(url_for('admin.users'))
     return render_template('admin/create_user.html', form=form)
